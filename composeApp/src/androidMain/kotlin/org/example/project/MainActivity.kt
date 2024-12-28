@@ -21,3 +21,9 @@ class MainActivity : ComponentActivity() {
 fun AppAndroidPreview() {
     App()
 }
+
+@Preview(showBackground = true)
+@Composable
+fun CoinListItemPreview(){
+
+}

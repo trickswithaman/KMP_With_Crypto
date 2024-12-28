@@ -1,0 +1,50 @@
+package org.example.project.crypto.data.networking
+
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import kotlinx.datetime.LocalDateTime
+import org.example.project.core.data.networking.constructUrl
+import org.example.project.core.data.networking.safeCall
+import org.example.project.core.domain.util.NetworkError
+import org.example.project.crypto.domain.Coin
+import org.example.project.crypto.domain.CoinDataSource
+import org.example.project.core.domain.util.Result
+import org.example.project.core.domain.util.map
+import org.example.project.crypto.data.mappers.toCoin
+import org.example.project.crypto.data.networking.dto.CoinResponseDto
+
+class RemoteCoinDataSource(
+    private val httpClient: HttpClient
+): CoinDataSource {
+
+    override suspend fun getCoins(): Result<List<Coin>, NetworkError> {
+        return safeCall<CoinResponseDto> {
+            httpClient.get(
+                urlString = constructUrl("/assets")
+            )
+        }.map { response ->
+            response.data.map { it.toCoin() }
+        }
+    }
+
+/*    override suspend fun getCoinHistory(
+        coinId: String,
+        start: LocalDateTime,
+        end: LocalDateTime
+    ): Result<List<CoinPrice>, NetworkError> {
+        val startMillis = start.toInstant(TimeZone.UTC).toEpochMilliseconds()
+        val endMillis = end.toInstant(TimeZone.UTC).toEpochMilliseconds()
+        return safeCall<CoinHistoryDto> {
+            httpClient.get(
+                urlString = constructUrl("/assets/$coinId/history"),
+            ) {
+                parameter("interval", "h6")
+                parameter("start", startMillis)
+                parameter("end", endMillis)
+            }
+        }.map { response ->
+            response.data.map { it.toCoinPrice() }
+        }
+    }*/
+
+}

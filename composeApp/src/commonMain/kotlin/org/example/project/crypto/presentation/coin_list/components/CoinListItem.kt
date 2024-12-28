@@ -34,31 +34,31 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun SharedTransitionScope.CoinListItem(
     animatedPaneScope: AnimatedPaneScope,
-    coinUi: CoinUi,
-    onClick: () -> Unit,
+    coin: CoinUi,
+    onItemClick: () -> Unit,
     modifier: Modifier = Modifier
-
-){
+) {
     val contentColor = if (isSystemInDarkTheme()) {
         Color.White
     } else {
         Color.Black
     }
-
-    Row (modifier = modifier
-        .clickable { onClick() }
-        .padding(20.dp),
+    Row(
+        modifier = modifier
+            .clickable { onItemClick() }
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ){
+    ) {
         Icon(
-            painter = painterResource(coinUi.iconRes),
-            contentDescription = coinUi.name,
+            painter = painterResource(coin.iconRes),
+            contentDescription = coin.name,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(85.dp)
+            modifier = Modifier
+                .size(85.dp)
                 .putIfPortrait(
                     Modifier.sharedElement(
-                        state = rememberSharedContentState(key = "image/${coinUi.id}"),
+                        state = rememberSharedContentState(key = "image/${coin.id}"),
                         animatedVisibilityScope = animatedPaneScope,
                         boundsTransform = { _, _ ->
                             tween(durationMillis = 1000)
@@ -66,39 +66,51 @@ fun SharedTransitionScope.CoinListItem(
                     )
                 )
         )
-
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(text = coinUi.symbol,
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = coin.symbol,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = contentColor
             )
-            Text(text = coinUi.name,
+            Text(
+                text = coin.name,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Light,
                 color = contentColor
             )
-
         }
-
-        Column(
-            horizontalAlignment = Alignment.End
-        ) {
-            Text(text = "$ ${coinUi.priceUsd.formatted}",
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = "$ ${coin.priceUsd.formatted}",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = contentColor
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            PriceChange(change = coinUi.changePercent24Hr)
-
+            Spacer(modifier = Modifier.height(8.dp))
+            PriceChange(change = coin.changePercent24Hr)
         }
-
     }
 }
+
+//@OptIn(ExperimentalSharedTransitionApi::class)
+//@PreviewLightDark
+//@Composable
+//fun CoinListItemPreview() {
+//    CryptoTrackerTheme {
+//        SharedTransitionLayout {
+//            AnimatedVisibility(visible = true) {
+//                CoinListItem(
+//                    animatedPaneScope = this as AnimatedPaneScope,
+//                    coin = previewCoin,
+//                    onItemClick = {},
+//                    modifier = Modifier.background(MaterialTheme.colorScheme.background)
+//                )
+//            }
+//        }
+//    }
+//}
+
 internal val previewCoin = Coin(
     id = "bitcoin",
     rank = 1,
