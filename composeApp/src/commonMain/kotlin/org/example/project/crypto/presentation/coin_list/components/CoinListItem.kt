@@ -121,6 +121,7 @@ internal val previewCoin = Coin(
     changePercent24Hr = 0.1
 ).toCoinUi()
 
+
 @Composable
 expect fun getScreenSize(): IntSize
 

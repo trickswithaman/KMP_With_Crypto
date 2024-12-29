@@ -5,12 +5,23 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.toLocalDateTime
 import org.example.project.core.domain.util.onError
 import org.example.project.core.domain.util.onSuccess
 import org.example.project.crypto.domain.CoinDataSource
+import org.example.project.crypto.presentation.coin_detail.DataPoint
+import org.example.project.crypto.presentation.model.CoinUi
 import org.example.project.crypto.presentation.model.toCoinUi
+import kotlin.time.Duration.Companion.days
 
 class CoinListViewModel(
     private val coinDataSource: CoinDataSource
@@ -18,7 +29,7 @@ class CoinListViewModel(
 
     private val _state = MutableStateFlow(CoinListState())
     val state: StateFlow<CoinListState> = _state
-
+//
     private val _events = Channel<CoinListEvent>()
     val events = _events.receiveAsFlow()
 
@@ -30,14 +41,14 @@ class CoinListViewModel(
         when (action) {
             CoinListAction.OnRefresh -> loadCoins()
             is CoinListAction.OnCoinClicked -> {
-//                _state.update { it.copy(selectedCoinUi = action.coinUi) }
-                selectCoin(action.coinUi)
+                _state.update { it.copy(selectedCoin = action.coinUi) }
+               selectCoin(action.coinUi)
             }
         }
     }
 
-/*    private fun selectCoin(coinUi: CoinUi) {
-        _state.update { it.copy(selectedCoinUi = coinUi) }
+    private fun selectCoin(coinUi: CoinUi) {
+        _state.update { it.copy(selectedCoin = coinUi) }
         viewModelScope.launch {
             coinDataSource.getCoinHistory(
                 coinId = coinUi.id,
@@ -54,24 +65,26 @@ class CoinListViewModel(
                             xLabel = formatDateTime(coinPrice.dateTime),
                         )
                     }
-                _state.update { it.copy(selectedCoinUi = it.selectedCoinUi?.copy(coinPriceHistory = dataPoints)) }
+                _state.update { it.copy(selectedCoin = it.selectedCoin?.copy(coinPriceHistory = dataPoints)) }
             }.onError { networkError ->
                 _events.send(CoinListEvent.Error(networkError))
             }
         }
-    }*/
+    }
 
     // this fun call for call coins api
     private fun loadCoins() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading =  true) }
+            _state.update { it.copy(isLoading = true) }
             coinDataSource
                 .getCoins()
                 .onSuccess { coins ->
-                    _state.update { it.copy(
-                        isLoading = false,
-                        coins = coins.map { it.toCoinUi() }
-                    ) }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            coins = coins.map { it.toCoinUi() }
+                        )
+                    }
                 }
                 .onError { error ->
                     _state.update { it.copy(isLoading = false) }
@@ -80,6 +93,7 @@ class CoinListViewModel(
 
 
         }
+    }
 }
 
 @OptIn(FormatStringsInDatetimeFormats::class)
