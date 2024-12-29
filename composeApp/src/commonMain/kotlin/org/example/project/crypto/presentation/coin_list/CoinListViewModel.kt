@@ -29,7 +29,7 @@ class CoinListViewModel(
 
     private val _state = MutableStateFlow(CoinListState())
     val state: StateFlow<CoinListState> = _state
-//
+
     private val _events = Channel<CoinListEvent>()
     val events = _events.receiveAsFlow()
 

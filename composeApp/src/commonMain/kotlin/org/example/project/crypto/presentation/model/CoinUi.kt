@@ -2,6 +2,7 @@ package org.example.project.crypto.presentation.model
 
 import org.example.project.core.presentation.util.getDrawableIdForCoin
 import org.example.project.crypto.domain.Coin
+import org.example.project.crypto.presentation.coin_detail.DataPoint
 import org.jetbrains.compose.resources.DrawableResource
 
 data class CoinUi(
