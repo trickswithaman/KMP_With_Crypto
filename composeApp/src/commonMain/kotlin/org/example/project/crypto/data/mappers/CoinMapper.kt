@@ -3,10 +3,14 @@ package org.example.project.crypto.data.mappers
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.example.project.core.presentation.util.getDrawableIdForCoin
 import org.example.project.crypto.data.networking.dto.CoinDto
 import org.example.project.crypto.data.networking.dto.CoinPriceDto
+import org.example.project.crypto.data.networking.dto.SearchDto
 import org.example.project.crypto.domain.Coin
 import org.example.project.crypto.domain.CoinPrice
+import org.example.project.crypto.presentation.model.CoinUi
+import org.example.project.crypto.presentation.model.toDisplayableNumber
 
 fun CoinDto.toCoin(): Coin {
     return Coin(
@@ -19,6 +23,20 @@ fun CoinDto.toCoin(): Coin {
         changePercent24Hr = changePercent24Hr,
     )
 }
+
+fun SearchDto.toCoinUi(): CoinUi {
+    return CoinUi(
+        id = id,
+        rank = rank,
+        symbol = symbol,
+        name = name,
+        marketCapUsd = priceUsd.toDisplayableNumber(),
+        priceUsd = priceUsd.toDisplayableNumber(),
+        changePercent24Hr = changePercent24Hr.toDisplayableNumber(),
+        iconRes = getDrawableIdForCoin(symbol)
+    )
+}
+
 
 
 fun CoinPriceDto.toCoinPrice(): CoinPrice {

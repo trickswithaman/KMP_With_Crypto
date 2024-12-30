@@ -34,15 +34,17 @@ import org.example.project.crypto.presentation.coin_list.CoinListAction
 import org.example.project.crypto.presentation.coin_list.CoinListEvent
 import org.example.project.crypto.presentation.coin_list.CoinListScreen
 import org.example.project.crypto.presentation.coin_list.CoinListViewModel
+import org.example.project.ui.theme.CryptoTrackerTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    CryptoTrackerTheme{
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             AdaptiveCoinListDetailPane(modifier = Modifier.padding(innerPadding))
         }
     }
+
 }

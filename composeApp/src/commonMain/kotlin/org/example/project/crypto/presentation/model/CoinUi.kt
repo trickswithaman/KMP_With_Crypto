@@ -1,6 +1,7 @@
 package org.example.project.crypto.presentation.model
 
 import org.example.project.core.presentation.util.getDrawableIdForCoin
+import org.example.project.crypto.data.networking.dto.SearchDto
 import org.example.project.crypto.domain.Coin
 import org.example.project.crypto.presentation.coin_detail.DataPoint
 import org.jetbrains.compose.resources.DrawableResource
@@ -22,6 +23,8 @@ data class DisplayableNumber(
     val formatted: String,
 )
 
+
+
 fun Coin.toCoinUi(): CoinUi {
     return CoinUi(
         id = id,
@@ -34,6 +37,7 @@ fun Coin.toCoinUi(): CoinUi {
         iconRes = getDrawableIdForCoin(symbol)
     )
 }
+
 
 fun Double.toDisplayableNumber(): DisplayableNumber {
     // Manually formatting the number using string interpolation

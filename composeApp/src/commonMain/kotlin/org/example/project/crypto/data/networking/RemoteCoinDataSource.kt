@@ -17,11 +17,29 @@ import org.example.project.crypto.data.mappers.toCoin
 import org.example.project.crypto.data.mappers.toCoinPrice
 import org.example.project.crypto.data.networking.dto.CoinHistoryDto
 import org.example.project.crypto.data.networking.dto.CoinResponseDto
+import org.example.project.crypto.data.networking.dto.SearchDto
+import org.example.project.crypto.data.networking.dto.SearchResponseDto
 import org.example.project.crypto.domain.CoinPrice
 
 class RemoteCoinDataSource(
     private val httpClient: HttpClient
 ): CoinDataSource {
+
+
+    override suspend fun getSearchResult (
+        name: String
+    ): Result<List<SearchDto>, NetworkError>{
+        return safeCall <SearchResponseDto>{
+            httpClient.get(
+                urlString = constructUrl("/assets/$name")
+            ){
+                parameter("n", name)
+            }
+        }.map { response ->
+            response.data
+        }
+    }
+
     override suspend fun getCoins(): Result<List<Coin>, NetworkError> {
         return safeCall<CoinResponseDto> {
             httpClient.get(
@@ -31,6 +49,8 @@ class RemoteCoinDataSource(
             response.data.map { it.toCoin() }
         }
     }
+
+
 
     override suspend fun getCoinHistory(
         coinId: String,
@@ -46,7 +66,7 @@ class RemoteCoinDataSource(
             httpClient.get(
                 urlString = constructUrl("/assets/$coinId/history")
             ) {
-                parameter("interval", "m30")
+                parameter("interval", "m15")
                 parameter("start", startMillis)
                 parameter("end", endMillis)
 
@@ -56,6 +76,8 @@ class RemoteCoinDataSource(
             response.data.map { it.toCoinPrice() }
 
         }
+
+
     }
 
 }

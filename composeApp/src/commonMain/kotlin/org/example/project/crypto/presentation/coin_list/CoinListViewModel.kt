@@ -17,6 +17,7 @@ import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toLocalDateTime
 import org.example.project.core.domain.util.onError
 import org.example.project.core.domain.util.onSuccess
+import org.example.project.crypto.data.mappers.toCoinUi
 import org.example.project.crypto.domain.CoinDataSource
 import org.example.project.crypto.presentation.coin_detail.DataPoint
 import org.example.project.crypto.presentation.model.CoinUi
@@ -42,8 +43,13 @@ class CoinListViewModel(
             CoinListAction.OnRefresh -> loadCoins()
             is CoinListAction.OnCoinClicked -> {
                 _state.update { it.copy(selectedCoin = action.coinUi) }
-               selectCoin(action.coinUi)
+                selectCoin(action.coinUi)
             }
+            is CoinListAction.OnSearchQueryChange -> {
+                _state.update { it.copy(searchQuery = action.query) }
+                searchCoin(action.query)
+            }
+            else -> {}
         }
     }
 
@@ -72,8 +78,64 @@ class CoinListViewModel(
         }
     }
 
-    // this fun call for call coins api
-    private fun loadCoins() {
+   /* private fun searchCoin(query: String) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    coins = if (query.isBlank()) {
+                        it.coins
+                    } else {
+                        it.coins.filter { coin ->
+                            coin.name.contains(query, ignoreCase = true) || coin.symbol.contains(
+                                query,
+                                ignoreCase = true
+                            )
+                        }
+                    }
+                )
+            }
+        }
+    }*/
+   private fun searchCoin(query: String) {
+
+       _state.update {
+           it.copy(
+               coins = if (query.isBlank()) {
+                   it.originalCoins
+               } else {
+                   it.originalCoins.filter { coin ->
+                       coin.name.contains(query, ignoreCase = true) || coin.symbol.contains(
+                           query,
+                           ignoreCase = true
+                       )
+                   }
+               }
+           )
+       }
+   }
+        // this fun call for call coins api
+        private fun loadCoins() {
+            viewModelScope.launch {
+                _state.update { it.copy(isLoading = true) }
+                coinDataSource
+                    .getCoins()
+                    .onSuccess { coins ->
+                        val coinUiList = coins.map { it.toCoinUi() }
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                originalCoins = coinUiList,
+                                coins = coinUiList
+                            )
+                        }
+                    }
+                    .onError { error ->
+                        _state.update { it.copy(isLoading = false) }
+                        _events.send(CoinListEvent.Error(error))
+                    }
+            }
+        }
+   /* private fun loadCoins() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             coinDataSource
@@ -90,11 +152,11 @@ class CoinListViewModel(
                     _state.update { it.copy(isLoading = false) }
                     _events.send(CoinListEvent.Error(error))
                 }
-
-
         }
-    }
+    }*/
 }
+
+
 
 @OptIn(FormatStringsInDatetimeFormats::class)
 fun formatDateTime(time: LocalDateTime): String {

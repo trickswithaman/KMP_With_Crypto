@@ -53,6 +53,9 @@ fun AdaptiveCoinListDetailPane(
                             is CoinListAction.OnCoinClicked -> {
                                 navigator.navigateTo(pane = ListDetailPaneScaffoldRole.Detail)
                             }
+                            is CoinListAction.OnSearchQueryChange -> {
+                                viewModel.onAction(action)
+                            }
 
                             CoinListAction.OnRefresh -> TODO()
                         }
