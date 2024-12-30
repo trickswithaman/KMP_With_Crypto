@@ -52,7 +52,6 @@ class CoinListViewModel(
             else -> {}
         }
     }
-
     private fun selectCoin(coinUi: CoinUi) {
         _state.update { it.copy(selectedCoin = coinUi) }
         viewModelScope.launch {
@@ -78,73 +77,35 @@ class CoinListViewModel(
         }
     }
 
-   /* private fun searchCoin(query: String) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    coins = if (query.isBlank()) {
-                        it.coins
-                    } else {
-                        it.coins.filter { coin ->
-                            coin.name.contains(query, ignoreCase = true) || coin.symbol.contains(
-                                query,
-                                ignoreCase = true
-                            )
-                        }
+    private fun searchCoin(query: String) {
+        _state.update {
+            it.copy(
+                coins = if (query.isBlank()) {
+                    it.originalCoins
+                } else {
+                    it.originalCoins.filter { coin ->
+                        coin.name.contains(query, ignoreCase = true) || coin.symbol.contains(
+                            query,
+                            ignoreCase = true
+                        )
                     }
-                )
-            }
+                }
+            )
         }
-    }*/
-   private fun searchCoin(query: String) {
-
-       _state.update {
-           it.copy(
-               coins = if (query.isBlank()) {
-                   it.originalCoins
-               } else {
-                   it.originalCoins.filter { coin ->
-                       coin.name.contains(query, ignoreCase = true) || coin.symbol.contains(
-                           query,
-                           ignoreCase = true
-                       )
-                   }
-               }
-           )
-       }
-   }
-        // this fun call for call coins api
-        private fun loadCoins() {
-            viewModelScope.launch {
-                _state.update { it.copy(isLoading = true) }
-                coinDataSource
-                    .getCoins()
-                    .onSuccess { coins ->
-                        val coinUiList = coins.map { it.toCoinUi() }
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                originalCoins = coinUiList,
-                                coins = coinUiList
-                            )
-                        }
-                    }
-                    .onError { error ->
-                        _state.update { it.copy(isLoading = false) }
-                        _events.send(CoinListEvent.Error(error))
-                    }
-            }
-        }
-   /* private fun loadCoins() {
+    }
+    // this fun call for call coins api
+    private fun loadCoins() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             coinDataSource
                 .getCoins()
                 .onSuccess { coins ->
+                    val coinUiList = coins.map { it.toCoinUi() }
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            coins = coins.map { it.toCoinUi() }
+                            originalCoins = coinUiList,
+                            coins = coinUiList
                         )
                     }
                 }
@@ -153,9 +114,8 @@ class CoinListViewModel(
                     _events.send(CoinListEvent.Error(error))
                 }
         }
-    }*/
+    }
 }
-
 
 
 @OptIn(FormatStringsInDatetimeFormats::class)
